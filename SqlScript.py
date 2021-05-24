@@ -8,7 +8,7 @@ https://www.w3schools.com/python/python_datetime.asp
 NB: Change Server to local server name!
     Need to install pyodbc which allows connection to SQL server
     
-NB: SQL queries structure requires '' to be escaped and surrounding values that are not numbers or text to be searched
+NB: SQL queries structure requires '' to be escaped and surrounding values that are not numbers to be searched
     Case: column name has a space in it, required to use double quotations, EG: "Gross Market Capitalisation", escape not needed provided it is different from the quotation marks
     Escape using prefix of backslash \
 """
@@ -102,49 +102,60 @@ def GetICsAndWeights(table, rDate, indexCode):
 def GetBetasMktAndSpecVols(table, rDate, ICs, mktIndexCode):
     try:
         assert mktIndexCode in mktC
-        sql_query = pd.read_sql_query('SELECT Instrument, Beta, "Unique Risk" as specVols, "Total Risk" as mktVol FROM AIFMRM_ERS.'+table+' WHERE Date=\''+str(rDate)+'.000\' AND Instrument IN ('+str(list(ICs))[1:-1]+') AND "Index"=\''+mktIndexCode+'\'' ,conn)
-        return sql_query
+        sql_query = pd.read_sql_query('SELECT Instrument, Beta, "Unique Risk" as specVols FROM AIFMRM_ERS.'+table+' WHERE Date=\''+str(rDate)+'.000\' AND Instrument IN ('+str(list(ICs))[1:-1]+') AND "Index"=\''+mktIndexCode+'\'' ,conn)
+        mktVol = pd.read_sql_query('SELECT DISTINCT "Total Risk" FROM AIFMRM_ERS.'+table+' WHERE Date=\''+str(rDate)+'.000\' AND Instrument=\''+ mktIndexCode +'\'' ,conn).values[0][0]
+        return sql_query, mktVol
     except AssertionError as e:
         print("Market code not in database")
         print(e)
     except:
         print("ohno, ohno, oh no no no no")
+        print("the table, date or lists of index constituents is not in the correct form, please try again")
 
 
-#first convert everything to numpy arrays
+#all values entered except mktVol (require scalar) can be a list or numpy array or pandas dataframe
+#the first convert everything to numpy arrays
 #direct call to numpy array constructor to make either pandas or list or numpy data structures into array
 #calling constructor on numpy array makes a copy it seems (will need to look at whether numpy has copy constructor)
 #weights,betas,specvols all column vectors
 #mktVols is a scalar
-#Q: is total asset volatility, totcov?
+#returns all statistics in a dictionary of numpy arrays
 def CalcStats(weights, betas, mktVol,specVols):
-    w = np.array(weights)
-    b = np.array(betas)
-    m = mktVol
-    s = np.array(specVols)
-    
-    pfBeta = w.T@b #Portfolio Beta
-    sysCov = (b@b.T)*(m**2) #Systematic Covariance Matrix
-    pfSysVol = (w.T@b)*(b.T@w)*(m**2) #Portfolio Systematic Variance
-    specCov = np.diag(s)**2 #Specific Covariance Matrix
-    pfSpecVol = w.T@specCov@w #Portfolio Specific volatility
-    totCov = sysCov + specCov #total covariance matrix
-    pfVol = pfSysVol + pfSpecVol #portfolio total volatility
-    
-    D_ = np.linalg.inv(np.diag(np.diag(totCov)))
-    corrMat = D_@[totCov]@D_ #correlation matrix
-    
-    allStats={
-        "pfBeta":pfBeta,
-        "sysCov":sysCov,
-        "pfSysVol":pfSysVol,
-        "specCov":specCov,
-        "pfSpecVol":pfSpecVol,
-        "totCov":totCov,
-        "pfVol":pfVol,
-        "corrMat":corrMat
-        }
-    return allStats
+    try:
+        assert (len(weights)==len(betas) & len(weights)==len(specVols))
+        w = np.array(weights).reshape(len(weights),1)
+        b = np.array(betas).reshape(len(betas),1)
+        m = mktVol
+        s = np.array(specVols)
+        
+        pfBeta = w.T@b #Portfolio Beta
+        sysCov = (b@b.T)*(m**2) #Systematic Covariance Matrix
+        pfSysVol = (w.T@b@b.T@w)*(m**2) #Portfolio Systematic Variance
+        specCov = np.diag(s)**2 #Specific Covariance Matrix
+        pfSpecVol = w.T@specCov@w #Portfolio Specific volatility
+        totCov = sysCov + specCov #total covariance matrix
+        pfVol = pfSysVol + pfSpecVol #portfolio total volatility
+        
+        D_ = np.linalg.inv(np.diag(np.diag(totCov)**0.5))
+        corrMat = D_@[totCov]@D_ #correlation matrix
+        
+        allStats={
+            "pfBeta":pfBeta,
+            "sysCov":sysCov,
+            "pfSysVol":pfSysVol,
+            "specCov":specCov,
+            "pfSpecVol":pfSpecVol,
+            "totCov":totCov,
+            "pfVol":pfVol,
+            "corrMat":corrMat
+            }
+        return allStats
+    except AssertionError:
+        print("length of list/matrix type inputs do not match up.")
+        print(len(weights))
+        print(len(betas))
+        print(len(specVols))
+        print(len(weights)==len(betas) & len(weights)==len(specVols))
  
 
 # running some tests   
@@ -153,8 +164,23 @@ funstuff = GetICsAndWeights(T6, x, "FLED")
 print(funstuff)
 
 x = dt.datetime(2017,9,29)
-Mofun = GetBetasMktAndSpecVols(T1, x, funstuff['Alpha'], "J203")
+Mofun, mktVol = GetBetasMktAndSpecVols(T1, x, funstuff['Alpha'], "J203")
 print(Mofun)
+print(mktVol)
 
-lastfun = CalcStats(funstuff['Weight'], Mofun['Beta'], 1, Mofun['specVols'])    
-print(lastfun)
+lastfun = CalcStats(funstuff['Weight'], Mofun['Beta'], mktVol, Mofun['specVols'])    
+#print(lastfun)
+for key in lastfun:
+    print(key)
+    temp=lastfun[key]
+    print(temp)
+    print(type(temp))
+    print(temp.shape)
+    print("\n")
+
+testfun=CalcStats(list([1,2,3]),list([1,2,3]),2,list([1,2,3]))
+
+for key in testfun:
+    print(key)
+    print(testfun[key])
+    print('\n')
