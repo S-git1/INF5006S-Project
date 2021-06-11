@@ -52,9 +52,42 @@ def Convert2Files(filename,df):
     print(df.columns.values)
 
 #converting each table from query to .csv and js
+"""
 for i in tbls:
     sql_query = pd.read_sql_query('SELECT * FROM AIFMRM_ERS.'+i,conn)
     Convert2Files(i,sql_query)
+"""
+
+
+
+s=dt.datetime(2017,9,1)
+e=dt.datetime(2021,3,1)
+month=[3,6,9,12]
+mktC = ["J203", "J200", "J250", "J257", "J258"]
+for y in range(s.year,e.year+1):
+    for i in range(0,4,1):
+        print("#################QUARTER TEST######################")
+        start=dt.datetime(y,month[i],1)
+        end=dt.datetime(y,(month[i]+1)%12,1)
+        if (start.month==12):
+            end=dt.datetime(end.year+1,1,1)
+        #Must check date in acceptable range
+        if(start<s or start>e):
+            continue
+        print(start)
+        for code in mktC:
+            mktIndexCode=code
+            sql_query = pd.read_sql_query('SELECT "Index Code" AS Code, "Index Name" AS Name, "Index Type", "Start Date","End Date","% Days Traded","Data Points", Alpha, Beta, "SE Alpha", "SE Beta", "p-Value Alpha", "p-Value Beta",R2, "Total Risk","Unique Risk" FROM AIFMRM_ERS.'+T5+', AIFMRM_ERS.'+T1+' WHERE Instrument like \'____\' AND Instrument ="Index Code" AND "Index"=\'J200\' AND Date>\''+str(start)+'.000\' AND Date<\''+str(end)+'.000\' ORDER BY "Index Type"',conn)
+            fname=""+str(mktIndexCode)+"Y"+str(start.year)+"Q"+str(i+1)
+            Convert2Files(fname, sql_query)
+
+
+
+
+
+
+
+
 
 
 
