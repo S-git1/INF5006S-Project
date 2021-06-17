@@ -60,6 +60,7 @@ def dtConvert(o):
 #makes pandas dataframe into .csv and .js file and also prints the data headers
 #Note: there is also a way to convert straight from pandas to json filetype but format not guaranteed as jsarray
 #Currently csv version disabled otherwise takes script too long to run
+#Note: when running script make sure to already have data/csv and data/js subdirectories in the folder the script is running
 def Convert2Files(filename,df):
     df.to_csv("./data/csv/"+filename+".csv") #.csv
     #df.to_json(filename+".csv") #Json
