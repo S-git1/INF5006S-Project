@@ -52,7 +52,6 @@ def dtConvert(o):
 #makes pandas dataframe into .csv and .js file and also prints the data headers
 #Note: there is also a way to convert straight from pandas to json filetype but format not guaranteed as jsarray
 #Currently csv version disabled otherwise takes script too long to run
-#Note: when running script make sure to already have data/csv and data/js subdirectories in the folder the script is running
 def Convert2Files(filename,df):
     df.to_csv("./data/csv/"+filename+".csv") #.csv
     #df.to_json(filename+".csv") #Json
@@ -110,7 +109,7 @@ def IndexTables(s=boundary1, e=boundary2, mktC=mktC,a=1,q=1,m=1):
             rows_returned=sql_query.shape[0]
             
             #making extra column for year and quarter and adjusting date to reference
-            Year=np.ones(rows_returned)*start.year
+            Year=np.ones(rows_returned)*y
             Quarter=np.ones(rows_returned)*(i+1)
             sql_query["Year"]=Year
             sql_query["Quarter"]=Quarter
@@ -166,7 +165,7 @@ def ShareTables(s=boundary1, e=boundary2, mktC=mktC,a=1,q=1,m=1):
     
     #configuring constants in sql statment
     #fields to grab
-    A='A.Date, A."Index" as "MarketID",  A.Instrument, A."Start Date", A."End Date", A."% Days Traded", A."Data Points", A.Alpha, A.Beta, A."SE Alpha", A."SE Beta", A."p-Value Alpha", A."p-Value Beta", A.R2, A."Total Risk", A."Unique Risk"'
+    A='A.Date, "Index" as "MarketID",  A.Instrument, A."Start Date", A."End Date", A."% Days Traded", A."Data Points", A.Alpha, A.Beta, A."SE Alpha", A."SE Beta", A."p-Value Alpha", A."p-Value Beta", A.R2, A."Total Risk", A."Unique Risk"'
     case1= 'WHEN B."Index New"=\'LRGC\' THEN \'L\''
     case2= 'WHEN B."Index New"=\'MIDC\' THEN \'M\''
     case3= 'WHEN B."Index New"=\'SMLC\' THEN \'S\''
@@ -195,6 +194,7 @@ def ShareTables(s=boundary1, e=boundary2, mktC=mktC,a=1,q=1,m=1):
             #construct where statement
             
             sql_query=None
+            """
             for k in mktC:
                 wherestat= 'WHERE A."Index" =\''+k+'\' AND A.Instrument=B.Alpha AND A.Date >= \''+str(s)+'.000\' AND A.Date<\''+str(e)+'.000\' AND B.Date >= \''+str(s)+'.000\' AND B.Date<\''+str(e)+'.000\''
                 #construct query
@@ -202,22 +202,27 @@ def ShareTables(s=boundary1, e=boundary2, mktC=mktC,a=1,q=1,m=1):
                 #query sql
                 if sql_query is None:
                     sql_query = pd.read_sql_query(query,conn)
+                    print(sql_query.shape)
                 else:
                     sql_query = sql_query.append(pd.read_sql_query(query,conn))
+                    print(sql_query.shape)
+            print(sql_query.shape)
             """
-            #OG way takes a lot more time
-            wherestat= 'WHERE A."Index" in (\'J203\', \'J200\', \'J250\', \'J257\', \'J258\') AND A.Instrument=B.Alpha AND A.Date >= \''+str(s)+'.000\' AND A.Date<\''+str(e)+'.000\' AND B.Date >= \''+str(s)+'.000\' AND B.Date<\''+str(e)+'.000\''
+            
+            #not sure which one takes more time but this avoids reassignment
+            
+            wherestat= 'WHERE A."Index" in (\'J203\', \'J200\', \'J250\', \'J257\', \'J258\') AND A.Instrument=B.Alpha AND A.Date >= \''+str(start)+'.000\' AND A.Date<\''+str(end)+'.000\' AND B.Date >= \''+str(start)+'.000\' AND B.Date<\''+str(end)+'.000\''
                 #construct query
             query='SELECT '+fields+' FROM '+T1 +' AS A,'+T6+' AS B INNER JOIN '+T7+' AS C ON C."Sub-sector Code"=B."ICB Sub-Sector" '+wherestat+' '+order
                 #query sql
             sql_query = pd.read_sql_query(query,conn)
-            """
+            print(sql_query.shape)
             
             #get length of dataframe
             rows_returned=sql_query.shape[0]
             
             #making extra column for year and quarter and adjusting date to reference
-            sql_query["Year"]=np.ones(rows_returned)*start.year
+            sql_query["Year"]=np.ones(rows_returned)*y
             sql_query["Quarter"]=np.ones(rows_returned)*(i+1)
             #sql_query["Date"]=start  #setting date to reference date
             
@@ -249,6 +254,7 @@ def ShareTables(s=boundary1, e=boundary2, mktC=mktC,a=1,q=1,m=1):
                  
         fname="shareTableView"
         Convert2Files(fname, pd.concat(byMarket.values())) 
+        print(pd.concat(byMarket.values()).shape)
         print("full fileset complete")     
     
     return byMarket  
@@ -275,7 +281,7 @@ print(dt.datetime.now())
 """
 #For Share tables
 """
-ShareTables(q=0,m=0)
+ShareTables(q=0,m=0,a=1)
 print(dt.datetime.now())
 
 
