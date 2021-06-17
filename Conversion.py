@@ -139,7 +139,7 @@ def IndexTables(s=boundary1, e=boundary2, mktC=mktC,a=1,q=1,m=1):
     #full set irrespective of market and date
     if(a==1):
         fname="indexTableView"
-        Convert2Files(fname, pd.concat(mktC.values())) 
+        Convert2Files(fname, pd.concat(byMarket.values())) 
         print("full fileset complete")           
     return byMarket
 
@@ -247,7 +247,7 @@ def ShareTables(s=boundary1, e=boundary2, mktC=mktC,a=1,q=1,m=1):
     if (a==1):
                  
         fname="shareTableView"
-        Convert2Files(fname, pd.concat(mktC.values())) 
+        Convert2Files(fname, pd.concat(byMarket.values())) 
         print("full fileset complete")     
     
     return byMarket  
