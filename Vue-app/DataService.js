@@ -61,6 +61,9 @@ class TutorialDataService{
         return http.get(`/FtseJse`);
     }
 
+    getIndexTypes(){
+        return http.get(`/FtseJseIndexTypes`);
+    }
     getindexConstituents(){
         return http.get(`/IC`);
     }

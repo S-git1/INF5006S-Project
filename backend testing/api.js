@@ -1,4 +1,4 @@
-var Order=require('./order');
+
 const dboperations=require('./dboperations');
 
 var express =require('express');
@@ -90,7 +90,7 @@ router.route('/Indextable').get((_request,response)=>{
 })
 
 router.route('/Indextable/:mktID/:Y/:Q').get((_request,response)=>{
-    dboperations.getIndexTablebyMktYandQ(_request.params.mktID,_request.params.Y,_request.params.D).then(result=>{
+    dboperations.getIndexTablebyMktYandQ(_request.params.mktID,_request.params.Y,_request.params.Q).then(result=>{
         //console.log(result);
         response.json(result[0]);
     })
@@ -134,6 +134,13 @@ router.route('/EODinRate').get((_request,response)=>{
 
 router.route('/FtseJse').get((_request,response)=>{
     dboperations.getFTSEJSEIndexSeries().then(result=>{
+        //console.log(result);
+        response.json(result[0]);
+    })
+})
+
+router.route('/FtseJseIndexTypes').get((_request,response)=>{
+    dboperations.getIndexTypes().then(result=>{
         //console.log(result);
         response.json(result[0]);
     })

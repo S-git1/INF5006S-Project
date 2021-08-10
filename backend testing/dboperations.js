@@ -207,6 +207,25 @@ async function getFTSEJSEIndexSeries(){
     }
 }
 
+async function getIndexTypes(){
+    try{
+        let pool=await sql.connect(config);
+        let products = await pool.request().query("SELECT Distinct([Index Type]) as IT from dbo.tbl_FTSEJSE_Index_Series");
+        var size= 0;
+        for (key in products.recordsets[0]){
+          //console.log(size);
+          products.recordsets[0][size]["id"]=size+1;
+          console.log(products.recordsets[0][size]);
+          size++;
+        }
+        return products.recordsets;
+    }
+    catch (error){
+        console.log(error);
+        console.log("something went wrong in this block");
+    }
+}
+
 //get index constituents
 async function getindexConstituents(){
     try{
@@ -278,6 +297,7 @@ module.exports={
     getEODEquityData : getEODEquityData,
     getEODinterestRate : getEODinterestRate,
     getFTSEJSEIndexSeries : getFTSEJSEIndexSeries,
+    getIndexTypes : getIndexTypes,
     getindexConstituents : getindexConstituents,
     getICB : getICB,
     getEODEquity : getEODEquity,

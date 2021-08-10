@@ -4,6 +4,14 @@
       <header>
         <!-- date range placeholder -->
       </header>
+      <div id="app">
+        <select class="form-control" @change="changeIndexType($event)">
+          <option value="" selected disabled>Choose Index Type</option>
+          <option v-for="type in IndexTypes" :value="type.id" :key="type.id">{{ type.IT }}</option>
+        </select>
+        <br><br>
+        <p><span>selected Index Type: {{ selectedIndexType  }}</span></p>
+      </div>
       <div class="dashboard__row">
         <latest-transactions-chart ref="latestTransactions" :entries="BABetaOutput"/> <!-- modified 'entries'-->
       </div>
@@ -21,6 +29,10 @@
         <all-breakdowns :entries="allBreakdownsView"></all-breakdowns> <!-- whatever was added in `components` section needs to be here with its name separated by dashes -->
       </div>
     </section>
+    <div>
+      <h2> test site </h2>
+      {{IndexTypes}}
+    </div>
     <div>
       <h2> breakdown by mkt and IC data (Req: buttons to change IC and mkt - currently fixed to mkt J200 and IC ALSI ) </h2>
       {{breakdownByMktandIC}}
@@ -70,7 +82,9 @@ export default {
       indexTableView : [],
       allBreakdownsView:[],
       test:[],
-      breakdownByMktandIC : []
+      breakdownByMktandIC : [],
+      IndexTypes: [],
+      selectedIndexType: null
     }
   },
   computed: {
@@ -118,7 +132,28 @@ export default {
         this.breakdownByMktandIC=response.data
       }catch(err){
         this.breakdownByMktandIC=err
-      }
+    }
+    },
+    async getIndexTypes(){
+      try{
+        const response = await DataService.getIndexTypes()
+        /*const temp =response.data
+        var size= 0;
+        for (key in temp){
+          //console.log(size);
+          temp[size]["id"]=size+1;
+          //console.log(products.recordsets[0][size]);
+          size++;
+        }
+        this.IndexTypes=temp*/
+        this.IndexTypes=response.data
+      }catch(err){
+        this.selectedIndexType=err
+    }
+    },
+    
+      changeIndexType (event) {
+      this.selectedIndexType = event.target.options[event.target.options.selectedIndex].text
     }
 /*
     ,
@@ -139,6 +174,8 @@ export default {
     this.getSharetable();
     this.getIndextable();
     this.getSpecBreakdown();
+    this.getIndexTypes();
+    this.changeIndexType();
     //this.getBABetaOutput();
   }
 }
