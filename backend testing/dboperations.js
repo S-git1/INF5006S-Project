@@ -101,6 +101,25 @@ async function getIndexTablebyMktYandQ(mktIC,Y,Q){
     }
 }
 
+//Where IT = Index Type
+//Y and Q are Year and quarter, require year and quarter to be passed as strings
+//eg: "2018.0" and "4.0"
+async function getIndexTablebyITYandQ(IT,Y,Q){
+    try{
+        let pool=await sql.connect(config);
+        let products = await pool.request()
+        .input('IT', sql.NVarChar,IT)
+        .input('Y', sql.NVarChar,Y)
+        .input('Q', sql.NVarChar,Q)
+        .query("SELECT * from dbo.indexTableView WHERE MarketID=@mkt and Year=@Y and Quarter=@Q");
+        return products.recordsets;
+    }
+    catch (error){
+        console.log(error);
+        console.log("something went wrong in this block");
+    }
+}
+
 async function getshareTableView(){
     try{
         let pool=await sql.connect(config);
@@ -214,8 +233,10 @@ async function getIndexTypes(){
         var size= 0;
         for (key in products.recordsets[0]){
           //console.log(size);
+
           products.recordsets[0][size]["id"]=size+1;
-          console.log(products.recordsets[0][size]);
+
+          //console.log(products.recordsets[0][size]);
           size++;
         }
         return products.recordsets;
@@ -271,6 +292,30 @@ async function getNmByTk(ticker){
     }
 }
 
+async function getPeriods(){
+    try{
+        let pool=await sql.connect(config);
+        let products = await pool.request().query("SELECT Distinct Year, Quarter from dbo.allBreakdownsview1 order by Year, Quarter");
+        console.log(products.recordsets[0]);
+        var size= 0;
+        var temp=[];
+        for (key in products.recordsets[0]){
+          //console.log(size);
+          products.recordsets[0][key]["YQ"]="Y".concat(parseInt(products.recordsets[0][key].Year),"Q",parseInt(products.recordsets[0][size].Quarter));
+          products.recordsets[0][key]["id"]=size+1;
+          temp.push({"YQ":products.recordsets[0][key]["YQ"],"id":size+1});
+          console.log(temp);
+          console.log(products.recordsets[0][key]);
+          size++;
+        }
+        console.log(products.recordsets);
+        return products.recordsets;
+    }
+    catch (error){
+        console.log(error);
+        console.log("something went wrong in this block");
+    }
+}
 
 //industry classification benchmark
 async function getICB(){
@@ -306,5 +351,7 @@ module.exports={
     getSpecBreakdown : getSpecBreakdown,
     getSpecBreakdown4Q : getSpecBreakdown4Q,
     getShareTablebyMktYandQ : getShareTablebyMktYandQ,
-    getIndexTablebyMktYandQ : getIndexTablebyMktYandQ
+    getIndexTablebyMktYandQ : getIndexTablebyMktYandQ,
+    getPeriods : getPeriods,
+    getIndexTablebyITYandQ : getIndexTablebyITYandQ
 }

@@ -146,6 +146,14 @@ router.route('/FtseJseIndexTypes').get((_request,response)=>{
     })
 })
 
+router.route('/Quarters').get((_request,response)=>{
+    dboperations.getPeriods().then(result=>{
+        //console.log(result);
+        response.json(result[0]);
+    })
+})
+
+
 router.route('/IC').get((_request,response)=>{
     dboperations.getindexConstituents().then(result=>{
         //console.log(result);

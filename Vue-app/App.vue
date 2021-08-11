@@ -4,16 +4,27 @@
       <header>
         <!-- date range placeholder -->
       </header>
-      <div id="app">
-        <select class="form-control" @change="changeIndexType($event)">
-          <option value="" selected disabled>Choose Index Type</option>
-          <option v-for="type in IndexTypes" :value="type.id" :key="type.id">{{ type.IT }}</option>
-        </select>
-        <br><br>
-        <p><span>selected Index Type: {{ selectedIndexType  }}</span></p>
+      <div class="row"> <!--https://www.w3schools.com/howto/howto_css_two_columns.asp set the drop downs side by side with css-->
+        <div class="column">
+          <select class="form-control" @change="changeIndexType($event)">
+            <option value="" selected disabled>Choose Index Type</option>
+            <option v-for="type in IndexTypes" :value="type.id" :key="type.id">{{ type.IT }}</option>
+          </select>
+          <br><br>
+          <p><span>selected Index Type: {{ selectedIndexType  }}</span></p>
+        </div>
+        <div class="column">
+          <select class="form-control" @change="changePeriod($event)">
+            <option value="" selected disabled>Choose Period</option>
+            <option v-for="p in Periods" :value="p.id" :key="p.id">{{ p.YQ }}</option>
+          </select>
+          <br><br>
+          <p><span>selected Period: {{ selectedPeriod  }}</span></p>
+        </div>
       </div>
-      <div class="dashboard__row">
-        <latest-transactions-chart ref="latestTransactions" :entries="BABetaOutput"/> <!-- modified 'entries'-->
+      <div>
+        <h2> Reduced Index table data </h2>
+        {{}}
       </div>
       <div class="dashboard__row">
         <index-table :entries="indexTableView"></index-table> <!-- modified 'entries'-->            
@@ -31,7 +42,7 @@
     </section>
     <div>
       <h2> test site </h2>
-      {{IndexTypes}}
+      {{Periods}}
     </div>
     <div>
       <h2> breakdown by mkt and IC data (Req: buttons to change IC and mkt - currently fixed to mkt J200 and IC ALSI ) </h2>
@@ -84,7 +95,9 @@ export default {
       test:[],
       breakdownByMktandIC : [],
       IndexTypes: [],
-      selectedIndexType: null
+      selectedIndexType: null,
+      Periods: [],
+      selectedPeriod: null
     }
   },
   computed: {
@@ -137,23 +150,26 @@ export default {
     async getIndexTypes(){
       try{
         const response = await DataService.getIndexTypes()
-        /*const temp =response.data
-        var size= 0;
-        for (key in temp){
-          //console.log(size);
-          temp[size]["id"]=size+1;
-          //console.log(products.recordsets[0][size]);
-          size++;
-        }
-        this.IndexTypes=temp*/
         this.IndexTypes=response.data
       }catch(err){
         this.selectedIndexType=err
     }
     },
+    async getPeriods(){
+      try{
+        const response = await DataService.getPeriods()
+        this.Periods=response.data
+        console.log("executed")
+      }catch(err){
+        this.selectedPeriod=err
+    }
+    },
     
-      changeIndexType (event) {
+    changeIndexType (event) {
       this.selectedIndexType = event.target.options[event.target.options.selectedIndex].text
+    },
+    changePeriod (event) {
+      this.selectedPeriod = event.target.options[event.target.options.selectedIndex].text
     }
 /*
     ,
@@ -175,7 +191,10 @@ export default {
     this.getIndextable();
     this.getSpecBreakdown();
     this.getIndexTypes();
+    this.getPeriods();
     this.changeIndexType();
+    
+    this.changePeriod();
     //this.getBABetaOutput();
   }
 }
