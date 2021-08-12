@@ -44,9 +44,7 @@ Backend files will be found in Backend Testing folder and front end in Vue-app f
 
     |---dbconfig.js
 
-    |---dboperations.js
-
-    |---order.js
+    |---dboperations.js    
 
     |---package-lock.json
 
@@ -79,12 +77,12 @@ Backend files will be found in Backend Testing folder and front end in Vue-app f
             |---DataService.js
 
        |---views
-
-    |---App.vue
-
-    |---http-common.js
-
-    |---main.js
+       
+       |---App.vue
+       
+       |---http-common.js
+       
+       |---main.js
 
 
 ## 4 Edit the dbconfig.js
