@@ -24,7 +24,9 @@ Initiates node modules and name the project backend (or some variation) once the
 
 **? Which license would you like to use? UNLICENSED**
 
-Then install the express MSSQL component:
+Then install the express MSSQL component in the project folder you just created:
+
+**cd backend**
 
 **npm install express mssql tedious body-parser cors --save**
 
