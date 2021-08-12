@@ -6,11 +6,25 @@ Code for the INF5006S dashboard project
 
 ## 1 Backend initialization
 
-In the root folder, run the following code and dependencies to set up environment. Require installation of node js.
+In the root folder, run the following code and dependencies to set up environment. Require installation of node js. For example, use the script:
 
-**npm init**
+**npm init backend**
 
-Initiates node modules and name the project backend (or some variation)
+Initiates node modules and name the project backend (or some variation) once the project name is asked for in the initializing step, and use the following inputs to the questions asked in the shell:
+
+**? What's your project name ? (This will be the project folder) backend**
+
+**? Would you like to use Aliases? Yes**
+
+**? Should we include a User endpoint example? No**
+
+**? Which database engine would you like to use? MSSQL**
+
+**? Would you like to use Typescript? No**
+
+**? Which license would you like to use? UNLICENSED**
+
+Then install the express MSSQL component:
 
 **npm install express mssql tedious body-parser cors --save**
 
