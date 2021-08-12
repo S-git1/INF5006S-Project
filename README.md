@@ -48,6 +48,20 @@ In the root folder, create a vue project called frontend using zinggrid. To do s
 
 Stop after installation complete.
 
+Now add the router component to the vue project using:
+
+**vue add router**
+
+Then for the history mode choose "No": (I don't know what this is so I just chose "No")
+
+**? Use history mode for router? (Requires proper server setup for index fallback in production) No**
+
+Next, manually create a folder with name "services" inside frontent/src:
+
+**cd src**
+
+**md services**
+
 ## 3 Copy in source files
 
 Backend files will be found in Backend Testing folder and front end in Vue-app folder. Copy in files in the following structure:
