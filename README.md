@@ -26,7 +26,11 @@ Nodemon automatically refreshes the build each there is a change in the file. Fo
 
 ## 2 Frontend initialization
 
-In the root folder, create a vue project called frontend using zinggrid preset as detailed in inf tutorial. Stop after installation complete.
+In the root folder, create a vue project called frontend using zinggrid. To do so, run the following command:
+
+**vue create --preset zingsoftinc/vue-dashboard#starter frontend**
+
+Stop after installation complete.
 
 ## 3 Copy in source files
 
