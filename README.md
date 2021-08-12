@@ -18,7 +18,7 @@ Installed dependencies after npm init. Not sure if we require tedious for ms ser
 
 **npm install nodemon**
 
-Install node demon and spec/insert new script line in package.json:
+Install node demon and spec/insert new script in package.json:
 
 **"start": "nodemon api.js"**
 
