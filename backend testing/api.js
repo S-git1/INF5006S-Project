@@ -96,6 +96,13 @@ router.route('/Indextable/:mktID/:Y/:Q').get((_request,response)=>{
     })
 })
 
+router.route('/Indextable/:IT/:Y/:Q').get((_request,response)=>{
+    dboperations.getIndexTablebyITYandQ(_request.params.IT,_request.params.Y,_request.params.Q).then(result=>{
+        //console.log(result);
+        response.json(result[0]);
+    })
+})
+
 router.route('/BABeta').get((_request,response)=>{
     dboperations.getBAbetaOutput().then(result=>{
         //console.log(result);

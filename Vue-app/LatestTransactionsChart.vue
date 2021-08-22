@@ -1,90 +1,124 @@
 <template>
-    <zingchart :data="chartConfig" :height="'100%'" style="flex:2" ref="chart"/>
+  <div class="row">
+    <div class="col-lg-10">
+      <zingchart :data="chartConfig" height='500px' ref="barchart"/>
+    </div>
+    <div v-if="ShowForLine()" class="col-lg-2 text">
+      <label class="typo__label">Customisation</label>
+      <multiselect v-model="value" tag-placeholder="Add this as new tag" placeholder="Search or add a tag" label="name" track-by="code" :options="options" :multiple="true" :taggable="true" @tag="addTag"></multiselect>
+      <pre class="language-json"><code>{{ value  }}</code></pre>
+    </div>
+  </div>
 </template>
 <script>
+import 'zingchart/es6';
+//import zingchartVue from 'zingchart-vue';
 // The chart currently has no function to choose a range of dates. It displays the data points for the entire date range.
 export default {
-  props: ['entries'],
+  name: 'latest-transactions-chart',
+  props: ['Heading','Series','type','stacked'],
+  data () {
+    return {
+      con: 'line',
+      //con: '',
+      value: [
+        { name: 'Javascript', code: 'js' }
+      ],
+      options: [
+        { name: 'Vue.js', code: 'vu' },
+        { name: 'Javascript', code: 'js' },
+        { name: 'Open Source', code: 'os' }
+      ]
+    }
+  },
   computed: {
-    values() {
-      return this.entries.map(o => {
-        return [parseFloat(o.Date), parseFloat(o.Beta)] // modified; give x-axis values first than y-axis values
-
-      }// ,console.log(this) // line to test what the values() is returning
-      )
-    },    
-    chartConfig() {
-      
+    
+    chartConfig(){
       return {
-        type: 'line',
-        title: {
-          text: 'Index data over time ("Beta" chosen for now)', // "Beta" chosen from dbo.tbl_BA_Outputs.js file for demonstrative purposes for the time being. 
-          adjustLayout: true,
-          align: 'left',
-          margin: 0,
-          fontColor: '#5d7d9a'
-        },
-        subtitle: {
-          text: '',
-          align: 'left',
-          fontColor: '#5d7d9a'
-        },
-        plot: {
-          aspect: 'spline',
-          marker: {
-            visible: true, // modified from `false` to `true`
+        type: this.type,
+          plot: {
+            stacked: this.stacked,
+            barWidth: '50%'
           },
-
+          /*title: {
+            text:  this.Heading,
+            color: '#5D7D9A',
+            align: 'left',
+            padding: '30 0 0 35'
+          },*/
+          scaleX: {
+            text: "Quarters",
+            
+            values: ["Y2017Q3", "Y2017Q4", "Y2018Q1", "Y2018Q2", "Y2018Q3", "Y2018Q4", "Y2019Q1", "Y2019Q2", "Y2019Q3", "Y2019Q4", "Y2020Q1", "Y2020Q2", "Y2020Q3", "Y2020Q4", "Y2021Q1" ],
+            itemsOverlap: true,
+            tick:{
+              visible: false,
+              _lineColor: '#D8D8D8'
+            },
+            
+            item: {
+              color: '#6C6C6C',
+              angle: '-80',
+              }
+          },
+        tooltip: {
+          visible: false
         },
-        // crosshairX:{
-        //   plotLabel :{
-        //     negation: "currency",
-        //     text: '$%v',
-        //     'thousands-separator': ","
-        //   },
-        //   marker: {
-        //     visible: false,
-        //   }
-        // },
-        tooltip: { 
-          visible: false,
-
+        crosshairX: {
+          plotLabel: {
+            fontColor: '#333',
+            backgroundColor: '#fff',
+            borderRadius: 5,
+            borderColor: '#EEE',
+            padding: 10
+          },
+          scaleLabel: {
+            alpha: 0,
+            text: '%v',
+            transform: {
+              type: 'date',
+              all: '%M %d, %Y<br>%g:%i %a'
+            },
+            fontFamily: 'Georgia'
+          }
         },
         plotarea: {
-          margin: '35 35 60 60'
-
-        },
-        scaleX: {
-          label: {
-            text: 'Date'
-          },
-          // values: '"2017-9-29":"2017-12-29"'
-          // values: "1300:4100:400" // select range of x-axis
-          // transform: {
-          //   type: 'date',
-          //   all: '%M %d',
-          // }
-          zooming: true,
-        },
-        scrollX: {
-
-        },
-        scaleY: {
-          label: {
-            text: 'Beta',
-          },
-          // short:true,
-          // shortUnit: 'K',
+          margin: '130 10 90 60'
         },
         
-        series: [{ // where you input the data
-          values: this.values,
-        }
-
-        ],
+        legend: {
+          layout: '3x4',
+          align: 'right',
+          verticalAlign: 'top',
+          margin: '5 0 0 0',
+          padding: '5px',
+          borderRadius: '5px',
+          header: {
+            text: 'Industry',
+            color: '#5D7D9A',
+            padding: '10px'
+          },
+          item: {
+            color: '#5D7D9A'
+          }
+        },
+        series: this.Series
       };
     }
   },
+  methods: {
+    ShowForLine(){
+      return this.type===this.con;
+    },
+    addTag (newTag) {
+      const tag = {
+        name: newTag,
+        code: newTag.substring(0, 2) + Math.floor((Math.random() * 10000000))
+      }
+      this.options.push(tag)
+      this.value.push(tag)
+    }
+  }
 }
 
 </script>

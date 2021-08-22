@@ -111,7 +111,7 @@ async function getIndexTablebyITYandQ(IT,Y,Q){
         .input('IT', sql.NVarChar,IT)
         .input('Y', sql.NVarChar,Y)
         .input('Q', sql.NVarChar,Q)
-        .query("SELECT * from dbo.indexTableView WHERE MarketID=@mkt and Year=@Y and Quarter=@Q");
+        .query("SELECT * from dbo.indexTableView WHERE `Index Type`=@IT and Year=@Y and Quarter=@Q");
         return products.recordsets;
     }
     catch (error){
@@ -296,7 +296,7 @@ async function getPeriods(){
     try{
         let pool=await sql.connect(config);
         let products = await pool.request().query("SELECT Distinct Year, Quarter from dbo.allBreakdownsview1 order by Year, Quarter");
-        console.log(products.recordsets[0]);
+        //console.log(products.recordsets[0]);
         var size= 0;
         var temp=[];
         for (key in products.recordsets[0]){
@@ -304,11 +304,11 @@ async function getPeriods(){
           products.recordsets[0][key]["YQ"]="Y".concat(parseInt(products.recordsets[0][key].Year),"Q",parseInt(products.recordsets[0][size].Quarter));
           products.recordsets[0][key]["id"]=size+1;
           temp.push({"YQ":products.recordsets[0][key]["YQ"],"id":size+1});
-          console.log(temp);
-          console.log(products.recordsets[0][key]);
+          //console.log(temp);
+          //console.log(products.recordsets[0][key]);
           size++;
         }
-        console.log(products.recordsets);
+        //console.log(products.recordsets);
         return products.recordsets;
     }
     catch (error){
