@@ -62,6 +62,9 @@ Next, manually create a folder with name "services" inside frontent/src:
 
 **md services**
 
+Also install Vue multiselect by:
+**npm install --save axios vue-multiselect**
+
 ## 3 Copy in source files
 
 Backend files will be found in Backend Testing folder and front end in Vue-app folder. Copy in files in the following structure:
