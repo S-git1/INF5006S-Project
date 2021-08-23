@@ -14,11 +14,17 @@ const config = {
 
 module.exports = config;
 
+
 //REQUIRED for mssql to access server
-//1. must configure sql server authentication on SSMS: connect via windows authentication, 
+//1. must configure sql server authentication on (M)SSMS: connect via windows authentication, 
+//      on left tab (Object Explorer): right click on server (ususally named somthing like DESKTOP-XXXXXX), then click on 'properties'
+//      on window left pane (Select a page), select 'Security', then under 'Server authentication', select 'SQL Server and Windows Authentication mode'
+//      click 'OK' to confirm settings and exit window.
+
 //      on left tab (Object Explorer): security->login->rightclick to make new login
 //      set login type to SQL server authentication, enter Login name and Password 
 //      untick enforce password exploration
+//      Set default database set to AIFMRM_ERS
 //      on window left pane (Select a page), select Server Roles and tick sysadmin, apply
 //      on window left pane (Select a page), select Status and enable both access and login credentials
 //2. Condigure TCP/IP port
