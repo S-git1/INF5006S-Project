@@ -37,6 +37,10 @@ class TutorialDataService{
         return http.get(`/Indextable/${mktIC}/${Y}/${Q}`);
     }
 
+    getIndextableByType_YQ(Type,Y,Q){
+        return http.get(`/Indextable/${Type}/${Y}/${Q}`);
+    }
+
     getBABetaOutput(){
         return http.get(`/BABeta`);
     }
@@ -78,6 +82,10 @@ class TutorialDataService{
 
     getICB(){
         return http.get(`/ICB`);
+    }
+
+    getPeriods(){
+        return http.get(`/Quarters`);
     }
 
 
