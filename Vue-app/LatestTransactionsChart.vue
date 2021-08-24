@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col-lg-10">
-      <zingchart :data="chartConfig" height='500px' ref="barchart"/>
+      <zingchart :data="chartConfig" ref="barchart" />
     </div>
     <div v-if="ShowForLine()" class="col-lg-2 text">
       <label class="typo__label">Customisation</label>
@@ -16,7 +16,7 @@ import 'zingchart/es6';
 // The chart currently has no function to choose a range of dates. It displays the data points for the entire date range.
 export default {
   name: 'latest-transactions-chart',
-  props: ['Heading','Series','type','stacked'],
+  props: ['Heading','Series','type','stacked', 'headers','tick'],
   data () {
     return {
       con: 'line',
@@ -38,7 +38,14 @@ export default {
         type: this.type,
           plot: {
             stacked: this.stacked,
-            barWidth: '50%'
+            
+            barWidth: '50%',
+            "animation": {
+            "effect": "ANIMATION_SLIDE_BOTTOM",
+            "sequence": 0,
+            "speed": 600,
+            "delay": 200
+            }
           },
           /*title: {
             text:  this.Heading,
@@ -49,13 +56,15 @@ export default {
           scaleX: {
             text: "Quarters",
             
-            values: ["Y2017Q3", "Y2017Q4", "Y2018Q1", "Y2018Q2", "Y2018Q3", "Y2018Q4", "Y2019Q1", "Y2019Q2", "Y2019Q3", "Y2019Q4", "Y2020Q1", "Y2020Q2", "Y2020Q3", "Y2020Q4", "Y2021Q1" ],
-            itemsOverlap: true,
-            tick:{
-              visible: false,
-              _lineColor: '#D8D8D8'
-            },
+            values: this.headers,
             
+            tick:{
+              visible: this.tick,
+              _lineColor: '#D8D8D8',
+              size:20,
+              placement:"cross"
+            },
+            "itemsOverlap": true,
             item: {
               color: '#6C6C6C',
               angle: '-80',
@@ -108,7 +117,8 @@ export default {
   },
   methods: {
     ShowForLine(){
-      return this.type===this.con;
+      //return this.type===this.con;
+      return false;
     },
     addTag (newTag) {
       const tag = {

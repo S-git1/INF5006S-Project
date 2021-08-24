@@ -57,6 +57,7 @@
 
 
         <br>
+        {{mySeries}}
         <br>
       </div>
       <div class="row" >

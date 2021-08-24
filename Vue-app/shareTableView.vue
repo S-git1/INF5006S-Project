@@ -45,7 +45,9 @@
 </template>
 
 <script>
+import shareTableViewVue from '../../../Vue-app/shareTableView.vue'
 export default {
+  name: 'share-table',
   props: ['entries'],
 }
 </script>

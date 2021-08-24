@@ -44,6 +44,7 @@
 
 <script>
 export default {
+  name: 'index-table',
   props: ['entries'],
 }
 </script>

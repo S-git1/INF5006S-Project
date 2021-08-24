@@ -1,12 +1,19 @@
 <template>
   <div id="app">
     <section class="dashboard">
-      <header>
-        <h3>{{breakdownCaption}}</h3>
-      </header>    
-
+      <div class="row">
+        <div class="col-lg-11">
+        <header>
+          <h3>{{breakdownCaption}}</h3>
+        </header>    
+        </div>
+        <div class="col-lg-1 text-right">
+          <span v-bind:title="breakdownInfo">
+              <img src="./assets/info_icon.png" alt="more info" width="20" height="20">
+          </span>
+        </div>
+      </div>
       <div class="row"> <!--https://www.w3schools.com/howto/howto_css_two_columns.asp set the drop downs side by side with css-->
-        <br>
         <div class="col-lg-3" style="margin:0px">
           <select class="form-control" @change="changeMktProxy($event)">
             <option value="" selected disabled>Choose Market Proxy</option>
@@ -42,15 +49,16 @@
         <br>
       </div>
       <div class="row" >
-<!--        <keep-alive>-->
         <div class="col-lg-12" >
           <component :is="currentTabComponent" v-bind= "currentProperties" class="tab"></component>
-<!--        </keep-alive>-->
         </div>
       </div>
     </section>
 
-    <br><br><br><br>
+    <br><br>
+    {{mySeries}}
+    {{breakdownByMktandIC}}
+    <br><br>
     
     <section>
       <header>
@@ -70,7 +78,14 @@
               <option v-for="p in Periods" :value="p.id" :key="p.id">{{ p.YQ }}</option>
             </select>
           </div> 
-          <div class="col-lg-7 text-right">
+          <div class="col-lg-3" style="margin:0px">
+          <select class="form-control" @change="changeMktIProxy($event)">
+            <option value="" selected disabled>Choose Market Proxy</option>
+            <option v-for="proxy in mkts" :value="proxy.mkt" :key="proxy.id">{{ proxy.Name }}</option>
+          </select>
+
+        </div>
+          <div class="col-lg-4 text-right">
             <button
               v-for="tab in indextabs"
               v-bind:key="tab"
@@ -84,10 +99,11 @@
         </div>
 
       </div>
-      <div class="row" >
-        
-        <component :is="currentIndexTabComponent" v-bind= "currentIndextabProperties" class="tab"></component>
-        
+      <br>
+      <div class="row " >
+        <div class="col-lg-12 anyClass" >
+          <component :is="currentIndexTabComponent" v-bind= "currentIndextabProperties" class="tab"></component>
+        </div>
       </div>
     </section>
     
@@ -111,12 +127,12 @@
               <option v-for="p in Periods" :value="p.id" :key="p.id">{{ p.YQ }}</option>
             </select>
           </div> 
-          <div class="col-lg-2" >
+          <!--<div class="col-lg-2" >
             <select class="form-control" @change="changeSharePeriod($event)">
               <option value="" selected disabled>Choose Period</option>
               <option v-for="p in Periods" :value="p.id" :key="p.id">{{ p.YQ }}</option>
             </select>
-          </div>
+          </div>-->
           <div class="col-lg-7 text-right">
             <button
               v-for="tab in tabs"
@@ -131,8 +147,9 @@
         </div>
 
       </div>
-      <div class="row vh-100" >
-        <div class="col-lg-12" >
+      <div class="row" >
+        <br>
+        <div class="col-lg-12 anyClass" >
           <component :is="currentShareTabComponent" v-bind= "currentSharetabProperties" class="tab"></component>
         </div>
       </div>
@@ -142,10 +159,11 @@
     <div>
     <!--  {{test}}-->
       <br><br>
-      {{finished}}
+      <br><br>
+    <!--  {{mySeries}}-->
       <br><br>
     <!--  {{myData}}-->
-     {{indexByIndexType}}-->
+     <!--{{shareByICB}}-->
      <!--  {{breakdownByMktandIC}}-->
     <!--  {{mySeries}}-->
     </div>
@@ -238,28 +256,32 @@ import Vue from 'vue/dist/vue.js';
 
 Vue.component("tab-table", {
   props:['data'],
-  template: `<all-breakdowns :entries="data.breakdownByMktandIC" v-bind:Heading="data.breakdownCaption"></all-breakdowns>`
+  //template: `<all-breakdowns :entries="data.Data"></all-breakdowns>`
+  template: `<tab-alt2 :entries="data.Data" :columns="data.columns"></tab-alt2>`
 });
 
 Vue.component("tab-barchart", {
   props:['data'],
-  template: `<latest-transactions-chart :Heading="data.breakdownCaption" :Series="data.mySeries" :type="data.type" :stacked="data.stacked"></latest-transactions-chart>`
+  template: `<latest-transactions-chart :Series="data.mySeries" :type="data.type" :stacked="data.stacked" :tick="data.tick" :headers="data.headers"></latest-transactions-chart>`
 });
 
 Vue.component("tab-linechart", {
   props:['data'],
-  template: `<latest-transactions-chart :Series="data.mySeries" :Heading="data.breakdownCaption" :type="data.type" :stacked="data.stacked"></latest-transactions-chart>`
+  template: `<latest-transactions-chart :Series="data.mySeries" :type="data.type" :stacked="data.stacked" :tick="data.tick" :headers="data.headers"></latest-transactions-chart>`
 });
 
 Vue.component("tab-indextable", {
   props:['data'],
-  template: `<index-tab-alt :entries="data.indexData" :Quarter="data.Quarter" ></index-tab-alt>`
+  //template: `<index-tab-alt :entries="data.indexData" :Quarter="data.Quarter" ></index-tab-alt>`
+  template: `<tab-alt2 :entries="data.Data" :Quarter="data.Quarter" :type="data.type" ></tab-alt2>`
 });
 
 Vue.component("tab-sharetable", {
   props:['data'],
-  template: `<share-tab-alt :entries="data.ShareData" :Quarter="data.Quarter" ></share-tab-alt>`
+  //template: `<share-tab-alt :entries="data.ShareData" :Quarter="data.Quarter" ></share-tab-alt>`
+  template: `<tab-alt2 :entries="data.Data" :Quarter="data.Quarter" :type="data.type" ></tab-alt2>`
 });
+
 
 export default {
   name: 'app',
@@ -267,6 +289,7 @@ export default {
   },
   data() {
     return {
+      breakdownInfo: "hello form space",
       shareTableView : [], 
       BABetaOutput : [], 
       //table constants
@@ -278,7 +301,7 @@ export default {
       breakdownByMktandIC : [],
       allBreakdownsView:[],
       //fields selected for BD
-      currentTab: "Table",
+      currentTab: "Linechart",
       selectedMktProxy: "\{Proxy\}",
       selectedIndex : "\{Index\}",
       selectedStat: "\{statistic\}",
@@ -291,6 +314,7 @@ export default {
       currentIndexTab: "Table",
       selectedIndexType: "\{Index Type\}",
       selectedPeriod: "\{Period\}",
+      selectedIndexMktProxy:"",
 
       //share table data
       shareSeries: [],
@@ -333,24 +357,30 @@ export default {
               breakdownCaption: this.breakdownCaption,
               mySeries: this.mySeries,
               type: 'line',
-              stacked: false
+              stacked: false,
+              tick: false,
+              headers: this.Periods.map(item => item.YQ).filter((value, index, self) => self.indexOf(value) === index) //setting up periods for graph,
             }
           };
         }
         if (this.currentTab==="Barchart"){
+          console.log("breakdowns executing");
           return{
             data:{
               breakdownCaption: this.breakdownCaption,
               mySeries: this.mySeries,
               type: 'bar',
-              stacked: true
+              stacked: true,
+              tick: false,
+              headers: this.Periods.map(item => item.YQ).filter((value, index, self) => self.indexOf(value) === index) //setting up periods for graph,
             }
           };
         }
         return{
           data:{
               breakdownCaption: this.breakdownCaption,
-              breakdownByMktandIC: this.breakdownByMktandIC
+              Data: this.breakdownByMktandIC,
+              columns: this.Periods.map(item => item.YQ).filter((value, index, self) => self.indexOf(value) === index)
             }
         };
       },
@@ -362,10 +392,24 @@ export default {
         return "tab-"+this.currentIndexTab.toLowerCase();
       },
       currentIndextabProperties(){
+        if (this.currentIndexTab==="Barchart"){
+          console.log("executing currentindex tab ");
+          return{
+            data:{
+              mySeries: [{"text":"JA00", "values":[1,2,3,4,5], "Quarter":"Y2017Q3"},{"text":"JA0R", "values":[3,4,2,1,2], "Quarter":"Y2017Q3"}],
+              type: 'bar',
+              stacked: false,
+              tick: true,
+              headers: this.mkts.map(item => item.mkt).filter((value, index, self) => self.indexOf(value) === index), //setting up periods for graph,
+              
+            }
+          };
+        }
         return{
           data:{
-              indexData: this.indexByIndexType,
-              Quarter: this.selectedPeriod
+              Data: this.indexByIndexType,
+              Quarter: this.selectedPeriod,
+              type: "index"
             }
         };
       },
@@ -378,8 +422,10 @@ export default {
       currentSharetabProperties(){
         return{
           data:{
-              ShareData: this.shareByICB,
-              Quarter: this.selectedSharePeriod
+              Data: this.shareByICB,
+              Quarter: this.selectedSharePeriod,
+              headers: this.Periods.map(item => item.YQ).filter((value, index, self) => self.indexOf(value) === index), //setting up periods for graph,
+              type: "share"
             }
         };
       }  
@@ -421,16 +467,17 @@ export default {
 
           const response = await DataService.getSpecBreakdown(this.selectedIndex,this.selectedMktProxy.slice(-5,-1))
           const FTSE = await DataService.getICB()
-          var BDdata=[] //container
-          var Ceres=[]
+          var BDdata=[] //container for table data
+          var Ceres=[] //container for chart data
           var industries=FTSE.data.map(item => item.Industry).filter((value, index, self) => self.indexOf(value) === index) //get list of industries
           
-          //this for loop loads BDdata with the desired form for the breakdown table
+          //this for loop loads BDdata with the desired form for the breakdown table and chart
           for (let i = 0; i < industries.length; i++) {
             var hello={"Industry":industries[i]} //create a dummy object which we will populate
             var please=response.data.filter(industry=>industry.Industry===industries[i]) //filter the breakdown data by a particular industry
+            //populating data for table
             for (let j=0;j< please.length;j++){
-              hello["Y"+parseInt(please[j]["Year"])+"Q"+parseInt(please[j]["Quarter"])]=parseFloat(please[j][this.selectedStat]) //extract stat in order of periods
+              hello["Y"+parseInt(please[j]["Year"])+"Q"+parseInt(please[j]["Quarter"])]=Math.round((parseFloat(please[j][this.selectedStat])+Number.EPSILON)*1000000)/1000000//extract stat in order of periods
             }
             for (let j=0;j<this.Periods.length;j++){
               if (!(this.Periods[j]["YQ"] in hello)){
@@ -438,25 +485,15 @@ export default {
               }
             }
             BDdata.push(hello)
+            //restructuring table data for breakdown chart
+            delete hello["Industry"]
+            Ceres.push({"text":industries[i], "values":Object.entries(hello).map((e) => e)})
 
           }
           this.breakdownByMktandIC=BDdata
-          
-          //restructuring data for the chart of breakdowns
-          for (let i=0; i<industries.length;i++){
-            const temp=BDdata.filter(industry=>industry.Industry===industries[i])[0]
-            var hello={"text":industries[i], "values":[]}
-            //this.finished=temp
-            //this.Periods[0]["YQ"]
-            for (let j=0;j<this.Periods.length;j++){
-              hello["values"].push(temp[this.Periods[j]["YQ"]])
-              
-            }
-            Ceres.push(hello)
-          }
+          //console.log(JSON.stringify(this.breakdownByMktandIC))
           this.mySeries=Ceres
-          //this.myData["scaleX"]["labels"]= this.Periods.map(item => item.YQ).filter((value, index, self) => self.indexOf(value) === index) //setting up periods for graph,
-          //this.finished=this.Periods.map(item => item.YQ).filter((value, index, self) => self.indexOf(value) === index) //setting up periods for graph,
+          //console.log(JSON.stringify(this.mySeries))
         }
       }catch(err){
         this.finished=err
@@ -489,7 +526,7 @@ export default {
               var filtered=please.filter(item=>item.Year===p.Year && item.Quarter===p.Quarter)              
               if(filtered.length!=0){
                 hello["Data Points"]=parseInt(filtered[0]["Data Points"])
-                filtered.map(o=>hello[o.MarketID]=parseFloat(o.Beta))
+                filtered.map(o=>hello[o.MarketID]=Math.round((parseFloat(o.Beta)+Number.EPSILON)*1000000)/1000000)
                 filtered.map(o=>hello["M"+o.MarketID]=[parseFloat(o["p Value Beta"]),parseFloat(o["SE Beta"]),parseFloat(o.Alpha),parseFloat(o["p Value Alpha"]),parseFloat(o["SE Alpha"])])
                 
               }
@@ -523,8 +560,6 @@ export default {
           for (let i = 0; i < Codes.length; i++) {
              //create a dummy object which we will populate
             var please=temp.filter(item=>item.Instrument===Codes[i]) //filter to get all the data for this code
-            var Name=please[0].Name //get name of code, this is a cheat should use filter for robustness
-            //this.finished=Name
             //this.test=please
             
             for (let p of this.Periods){
@@ -535,11 +570,11 @@ export default {
               if(filtered.length!=0){
                 hello["Data Points"]=parseInt(filtered[0]["Data Points"]) //fix this in MSServer
                 hello["Cap"]=filtered[0]["Cap"]
-                hello["Start Date"]=filtered[0]["Start Date"]
-                hello["End Date"]=filtered[0]["End Date"]
+                hello["Start Date"]=filtered[0]["Start Date"].slice(0,10)
+                hello["End Date"]=filtered[0]["End Date"].slice(0,10)
                 hello["% Days Traded"]=Math.round(parseFloat(filtered[0]["% Days Traded"])*10000)/100
                 //hello["p Value Beta"]=
-                filtered.map(o=>hello[o.MarketID]=parseFloat(o.Beta))
+                filtered.map(o=>hello[o.MarketID]=Math.round((parseFloat(o.Beta)+Number.EPSILON)*1000000)/1000000)
                 filtered.map(o=>hello["M"+o.MarketID]=[parseFloat(o["p Value Beta"]),parseFloat(o["SE Beta"]),parseFloat(o.Alpha),parseFloat(o["p Value Alpha"]),parseFloat(o["SE Alpha"])])
               }
               Ceres.push(hello)
@@ -568,7 +603,7 @@ export default {
       try{
         const response = await DataService.getPeriods()
         this.Periods=response.data
-        console.log("executed")
+        //console.log("executed")
       }catch(err){
         this.selectedPeriod=err
     }
@@ -596,6 +631,7 @@ export default {
         this.getSpecBreakdown()
       //}
     },
+    
     changeIndex (event) {
       //if (this.selectedIndex!="\{Index\}"){
         this.selectedIndex = event.target.options[event.target.options.selectedIndex].text
@@ -608,6 +644,12 @@ export default {
         this.getSpecBreakdown()
       //}
     },
+    changeMktIProxy (event) {
+      //if (this.selectedMktProxy!="\{Proxy\}"){
+        this.selectedIndexMktProxy = event.target.options[event.target.options.selectedIndex].text
+        //this.ConfigureIndexchart()
+      //}
+    },
 
     changeIndustry(event){
       this.selectedIndustry = event.target.options[event.target.options.selectedIndex].text
@@ -618,7 +660,7 @@ export default {
     changeSharePeriod(event){
       this.selectedSharePeriod = event.target.options[event.target.options.selectedIndex].text
       this.shareCaption = "Share table of Betas for " +this.selectedIndustry+" (ICB) in the period "+this.selectedSharePeriod
-    }
+    },
 
 /*
     ,
@@ -669,5 +711,9 @@ h3 {
   padding-left: 0;
   text-align: left;
             
+}
+.anyClass{
+  height:500px;
+  overflow-y:scroll;
 }
 </style>
