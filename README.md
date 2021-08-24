@@ -29,6 +29,7 @@ Then install the express MSSQL component in the project folder you just created:
 **cd backend**
 
 **npm install express mssql tedious body-parser cors vue-multiselect --save**
+**npm install vuetable-2@next --save**
 
 Installed dependencies after npm init. Not sure if we require tedious for ms server, and mssql library required for sake of access. body-parser for use of json and cors for api communication accross different sources and express for something I can't remember. write out a proper explanation
 
@@ -107,6 +108,8 @@ Backend files will be found in Backend Testing folder and front end in Vue-app f
             |---LatestTransactionsChart.vue
 
             |---IndexTabAlt.vue
+
+            |---TabAlt2.vue
 
        |---router
 
