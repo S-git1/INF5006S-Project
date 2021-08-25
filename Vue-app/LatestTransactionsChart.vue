@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col-lg-10">
-      <zingchart :data="chartConfig" ref="barchart" />
+      <zingchart :data="chartConfig" ref="barchart" :caption="noData" />
     </div>
     <div v-if="ShowForLine()" class="col-lg-2 text">
       <label class="typo__label">Customisation</label>
@@ -32,7 +32,12 @@ export default {
     }
   },
   computed: {
-    
+    noData(){
+      if(this.Series===null){
+          return "No Data Available" ;
+      }
+      return "";
+    },
     chartConfig(){
       return {
         type: this.type,
@@ -41,9 +46,9 @@ export default {
             
             barWidth: '50%',
             "animation": {
-            "effect": "ANIMATION_SLIDE_BOTTOM",
+            "effect": "ANIMATION_SLIDE_LEFT",
             "sequence": 0,
-            "speed": 600,
+            "speed": 800,
             "delay": 200
             }
           },
@@ -82,12 +87,8 @@ export default {
             padding: 10
           },
           scaleLabel: {
-            alpha: 0,
+            alpha: 1,
             text: '%v',
-            transform: {
-              type: 'date',
-              all: '%M %d, %Y<br>%g:%i %a'
-            },
             fontFamily: 'Georgia'
           }
         },
@@ -103,7 +104,7 @@ export default {
           padding: '5px',
           borderRadius: '5px',
           header: {
-            text: 'Industry',
+            text: 'Industry (PS:you can select me)',
             color: '#5D7D9A',
             padding: '10px'
           },
@@ -117,8 +118,8 @@ export default {
   },
   methods: {
     ShowForLine(){
-      //return this.type===this.con;
-      return false;
+      return this.type===this.con;
+      //return false;
     },
     addTag (newTag) {
       const tag = {

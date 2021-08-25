@@ -72,20 +72,20 @@
             </select>
 
           </div>
-          <div class="col-lg-2" >
+          <div v-if="currentIndexTab!='Linechart'" class="col-lg-3" >
             <select class="form-control" @change="changePeriod($event)">
               <option value="" selected disabled>Choose Period</option>
               <option v-for="p in Periods" :value="p.id" :key="p.id">{{ p.YQ }}</option>
             </select>
           </div> 
-          <div class="col-lg-3" style="margin:0px">
+          <div v-if="currentIndexTab==='Linechart'" class="col-lg-3" style="margin:0px">
           <select class="form-control" @change="changeMktIProxy($event)">
             <option value="" selected disabled>Choose Market Proxy</option>
             <option v-for="proxy in mkts" :value="proxy.mkt" :key="proxy.id">{{ proxy.Name }}</option>
           </select>
 
         </div>
-          <div class="col-lg-4 text-right">
+          <div class="col-lg-6 text-right">
             <button
               v-for="tab in indextabs"
               v-bind:key="tab"
@@ -106,8 +106,10 @@
         </div>
       </div>
     </section>
-    
-    <br><br><br><br>
+    {{test}}
+    <br><br>
+   <!-- {{indexByIndexType}}-->
+    <br><br>
 
     <section>
       <header>
@@ -165,7 +167,7 @@
     <!--  {{myData}}-->
      <!--{{shareByICB}}-->
      <!--  {{breakdownByMktandIC}}-->
-    <!--  {{mySeries}}-->
+    {{shareSeries}}
     </div>
   </div>
 
@@ -229,11 +231,11 @@ const ICBtypes=[
   ]
 
 const mkts=[
-  {"mkt":"J203","Name":"FTSE/JSE ALSI Share Index (J203)", "id":1},
-  {"mkt":"J200","Name":"FTSE/JSE Top 40 Index (J200)", "id":2},
-  {"mkt":"J250","Name":"FTSE/JSE Financials & Industrials Index (J250)", "id":3},
-  {"mkt":"J257","Name":"FTSE/JSE Industrials Index (J257)", "id":4},
-  {"mkt":"J258","Name":"FTSE/JSE Resources Index (J258)", "id":5}]
+  {"mkt":"J203","Name":"ALSI Share Index (J203)", "id":1},
+  {"mkt":"J200","Name":"Top 40 Index (J200)", "id":2},
+  {"mkt":"J250","Name":"Financials & Industrials Index (J250)", "id":3},
+  {"mkt":"J257","Name":"Industrials Index (J257)", "id":4},
+  {"mkt":"J258","Name":"Resources Index (J258)", "id":5}]
 
 const years=[
   {"year":2017,"id":1},
@@ -289,7 +291,7 @@ export default {
   },
   data() {
     return {
-      breakdownInfo: "hello form space",
+      breakdownInfo: "The items in the legend can be deselected and selected. Try clicking 'Oil & Gas' ",
       shareTableView : [], 
       BABetaOutput : [], 
       //table constants
@@ -311,7 +313,7 @@ export default {
       indexByIndexType:[],
       indexTableView : [],
       //fields selected for Index tabs
-      currentIndexTab: "Table",
+      currentIndexTab: "Linechart",
       selectedIndexType: "\{Index Type\}",
       selectedPeriod: "\{Period\}",
       selectedIndexMktProxy:"",
@@ -341,8 +343,8 @@ export default {
 
       //headings
       breakdownCaption: "Breakdown of <Index> using <Proxy> as proxy",
-      indexCaption: "Index table of Betas for <Index Type> in the period <Period>",
-      shareCaption: "Share table of Betas for <ICB Industry> in the period <Period>"
+      indexCaption: "Index Betas for <Index Type> in the period <Period>",
+      shareCaption: "Share Betas for <ICB Industry> in the period <Period>"
     }
   },
   computed: {
@@ -405,11 +407,32 @@ export default {
             }
           };
         }
+        else if(this.currentIndexTab==="Linechart" &&this.selectedIndexMktProxy!=""){
+          console.log("executing"+this.currentIndexTab);
+          console.log(this.selectedIndexMktProxy);
+          //var temp=this.indexSeries.filter(item=>item.IndexType===this.selectedIndexType);
+          var temp=this.indexSeries;
+          var mkt=this.selectedIndexMktProxy.slice(-5,-1);
+          var temp2=temp.map(item=>({"text":item.Code,"values": Object.entries(item[mkt]).map((e) => e),"Name":item.Name, "IndexType":item.IndexType}));
+          //this.test=temp;
+          console.log("ready for line");
+          return{
+            data:{
+              mySeries: temp2,
+              type: 'line',
+              stacked: false,
+              tick: false,
+              headers: this.Periods.map(item => item.YQ).filter((value, index, self) => self.indexOf(value) === index), //setting up periods for graph,
+            }
+          }
+        }
         return{
           data:{
-              Data: this.indexByIndexType,
+              mySeries: [],
+              Data: this.indexByIndexType.filter(iT=> iT["Index Type"]===this.selectedIndexType),
               Quarter: this.selectedPeriod,
-              type: "index"
+              type: "index",
+              
             }
         };
       },
@@ -420,6 +443,27 @@ export default {
         return "tab-"+this.currentShareTab.toLowerCase();
       },
       currentSharetabProperties(){
+        if(this.currentShareTab==="Linechart" &&this.selectedIndexMktProxy!=""){ //change
+          console.log("executing"+this.currentShareTab);
+          console.log(this.selectedIndexMktProxy); //change
+          var temp=this.shareSeries.filter(item=>item.Industry===this.selectedIndustry);
+          
+          //var temp=this.shareSeries;
+          var mkt=this.selectedIndexMktProxy.slice(-5,-1);
+          var temp2=temp.map(item=>({"text":item.Code,"values": Object.entries(item[mkt]).map((e) => e), "Industry":item.Industry}));
+          //this.test=temp;
+          console.log(JSON.stringify(temp2));
+          console.log("ready for line");
+          return{
+            data:{
+              mySeries: temp2,
+              type: 'line',
+              stacked: false,
+              tick: false,
+              headers: this.Periods.map(item => item.YQ).filter((value, index, self) => self.indexOf(value) === index), //setting up periods for graph,
+            }
+          }
+        }
         return{
           data:{
               Data: this.shareByICB,
@@ -504,40 +548,69 @@ export default {
     async getSpecIndex(){
       
       try{
-        if(this.selectedIndexType!="\{Index Type\}"){
+        //if(this.selectedIndexType!="\{Index Type\}"){
           const response = await DataService.getIndextable()
         
-          var temp=response.data.filter(iT=> iT["Index Type"]===this.selectedIndexType) //filter by selected index type
+          var temp=response.data
           //this.indexByIndexType=temp
           var Codes=temp.map(item => item.Code).filter((value, index, self) => self.indexOf(value) === index) //get list of codes under the index type
           //this.indexByIndexType=Codes
           var Ceres=[]
-          
+          var other=[]
 
           for (let i = 0; i < Codes.length; i++) {
              //create a dummy object which we will populate
             var please=temp.filter(item=>item.Code===Codes[i]) //filter to get all the data for this code
-            var Name=please[0].Name //get name of code, this is a cheat should use filter for robustness
+            const Name=please[0].Name //get name of code, this is a cheat should use filter for robustness
+            const IndexType=please[0]["Index Type"]
             //this.finished=Name
             //this.test=please
-            
+            var ohello={"Code":Codes[i], "Name":Name,"IndexType":IndexType, J203:{},J200:{},J258:{},J257:{},J250:{}}
             for (let p of this.Periods){
-              var hello={"Code":Codes[i], "Name":Name, "YQ":p.YQ}
+              var hello={"Code":Codes[i], "Name":Name, "YQ":p.YQ, "Index Type":IndexType}
               var filtered=please.filter(item=>item.Year===p.Year && item.Quarter===p.Quarter)              
               if(filtered.length!=0){
                 hello["Data Points"]=parseInt(filtered[0]["Data Points"])
-                filtered.map(o=>hello[o.MarketID]=Math.round((parseFloat(o.Beta)+Number.EPSILON)*1000000)/1000000)
+                filtered.map(function(o){
+                  var beta=Math.round((parseFloat(o.Beta)+Number.EPSILON)*1000000)/1000000
+                  hello[o.MarketID]=beta
+                  ohello[o.MarketID][p.YQ]=beta
+
+                })
                 filtered.map(o=>hello["M"+o.MarketID]=[parseFloat(o["p Value Beta"]),parseFloat(o["SE Beta"]),parseFloat(o.Alpha),parseFloat(o["p Value Alpha"]),parseFloat(o["SE Alpha"])])
                 
               }
               Ceres.push(hello)
             }
-            //this.finished=Ceres
+            other.push(ohello);
+            //this.finished="ready"
+            
     
           }
           this.indexByIndexType=Ceres
+          this.indexSeries=other
+          console.log("indexSeries ready")
           
-        }
+
+          /*for (let i = 0; i < industries.length; i++) {
+            var hello={"Industry":industries[i]} //create a dummy object which we will populate
+            var please=response.data.filter(industry=>industry.Industry===industries[i]) //filter the breakdown data by a particular industry
+            //populating data for table
+            for (let j=0;j< please.length;j++){
+              hello["Y"+parseInt(please[j]["Year"])+"Q"+parseInt(please[j]["Quarter"])]=Math.round((parseFloat(please[j][this.selectedStat])+Number.EPSILON)*1000000)/1000000//extract stat in order of periods
+            }
+            for (let j=0;j<this.Periods.length;j++){
+              if (!(this.Periods[j]["YQ"] in hello)){
+                hello[this.Periods[j]["YQ"]]=0
+              }
+            }
+            BDdata.push(hello)
+            //restructuring table data for breakdown chart
+            delete hello["Industry"]
+            Ceres.push({"text":industries[i], "values":Object.entries(hello).map((e) => e)})
+
+          }*/
+        //}
       }catch(err){
         console.log(this.err)
         this.finished=err
@@ -549,19 +622,23 @@ export default {
       try{
         if(this.selectedIndustry!="\{ICB Industry\}"){
           const response = await DataService.getSharetable()
-        
+          
           var temp=response.data.filter(iT=> iT["Industry"]===this.selectedIndustry) //filter by selected index type
           //this.indexByIndexType=temp
           var Codes=temp.map(item => item.Instrument).filter((value, index, self) => self.indexOf(value) === index) //get list of codes under the index type
           //this.indexByIndexType=Codes
           var Ceres=[]
-          
+          var other=[]
 
           for (let i = 0; i < Codes.length; i++) {
              //create a dummy object which we will populate
             var please=temp.filter(item=>item.Instrument===Codes[i]) //filter to get all the data for this code
             //this.test=please
-            
+            const IndexType=please[0]["Industry"]
+            //this.finished=Name
+            //this.test=please
+            var ohello={"Code":Codes[i],"Industry":IndexType, J203:{},J200:{},J258:{},J257:{},J250:{}}
+            //console.log(JSON.stringify(ohello))
             for (let p of this.Periods){
               //, "Name":Name could pull this using api later
               var hello={"Code":Codes[i], "YQ":p.YQ}
@@ -573,17 +650,23 @@ export default {
                 hello["Start Date"]=filtered[0]["Start Date"].slice(0,10)
                 hello["End Date"]=filtered[0]["End Date"].slice(0,10)
                 hello["% Days Traded"]=Math.round(parseFloat(filtered[0]["% Days Traded"])*10000)/100
-                //hello["p Value Beta"]=
-                filtered.map(o=>hello[o.MarketID]=Math.round((parseFloat(o.Beta)+Number.EPSILON)*1000000)/1000000)
+                
+                filtered.map(function(o){
+                  var beta=Math.round((parseFloat(o.Beta)+Number.EPSILON)*1000000)/1000000
+                  hello[o.MarketID]=beta
+                  ohello[o.MarketID][p.YQ]=beta
+                  })
                 filtered.map(o=>hello["M"+o.MarketID]=[parseFloat(o["p Value Beta"]),parseFloat(o["SE Beta"]),parseFloat(o.Alpha),parseFloat(o["p Value Alpha"]),parseFloat(o["SE Alpha"])])
               }
               Ceres.push(hello)
             }
+            other.push(ohello)
            //this.finished=Ceres
     
           }
           this.shareByICB=Ceres
-          
+          this.shareSeries=other
+          console.log("shareSeries ready")
         }
       }catch(err){
         console.log(this.err)
@@ -614,15 +697,15 @@ export default {
     changePeriod (event) {
       //if (this.selectedPeriod!="\{period\}"){
         this.selectedPeriod = event.target.options[event.target.options.selectedIndex].text
-        this.indexCaption="Index table of Betas for " +this.selectedIndexType + " in the period "+ this.selectedPeriod 
+        this.indexCaption="Index Betas for " +this.selectedIndexType + " in the period "+ this.selectedPeriod 
         //this.getSpecIndex()
       //}
     },
     changeIndexType (event) {
       //if (this.selectedIndexType!="\{Index Type\}"){
         this.selectedIndexType = event.target.options[event.target.options.selectedIndex].text
-        this.indexCaption="Index table of Betas for " +this.selectedIndexType + " in the period "+ this.selectedPeriod 
-        this.getSpecIndex()
+        this.indexCaption="Index Betas for " +this.selectedIndexType + " in the period "+ this.selectedPeriod 
+        //this.getSpecIndex()
       //}
     },
     changeMktProxy (event) {
@@ -653,13 +736,13 @@ export default {
 
     changeIndustry(event){
       this.selectedIndustry = event.target.options[event.target.options.selectedIndex].text
-      this.shareCaption = "Share table of Betas for " +this.selectedIndustry+" (ICB) in the period "+this.selectedSharePeriod
+      this.shareCaption = "Share Betas for " +this.selectedIndustry+" (ICB) in the period "+this.selectedSharePeriod
       this.getSpecShareTab()
     },
 
     changeSharePeriod(event){
       this.selectedSharePeriod = event.target.options[event.target.options.selectedIndex].text
-      this.shareCaption = "Share table of Betas for " +this.selectedIndustry+" (ICB) in the period "+this.selectedSharePeriod
+      this.shareCaption = "Share Betas for " +this.selectedIndustry+" (ICB) in the period "+this.selectedSharePeriod
     },
 
 /*
