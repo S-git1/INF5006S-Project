@@ -28,8 +28,8 @@ Then install the express MSSQL component in the project folder you just created:
 
 **cd backend**
 
-**npm install express mssql tedious body-parser cors vue-multiselect --save**
-**npm install vuetable-2@next --save**
+**npm install express mssql tedious body-parser cors --save**
+
 
 Installed dependencies after npm init. Not sure if we require tedious for ms server, and mssql library required for sake of access. body-parser for use of json and cors for api communication accross different sources and express for something I can't remember. write out a proper explanation
 
@@ -57,11 +57,19 @@ Then for the history mode choose "No": (I don't know what this is so I just chos
 
 **? Use history mode for router? (Requires proper server setup for index fallback in production) No**
 
-Next, manually create a folder with name "services" inside frontent/src:
+Now you will need to install dependencies
 
-**cd src**
+**npm install zingchart**
+**npm install vuetable-2@next --save**
+**npm install --save @riophae/vue-treeselect**
+**npm install vue-slide-bar --save**
+**npm install nodemon**
 
-**md services**
+Install node demon and spec/insert new script in package.json:
+
+**"start": "nodemon api.js"**
+
+Next, manually copy and replace the src and public folders in the Vue app with those on the git repo under Vue-app
 
 ## 3 Copy in source files
 
@@ -90,6 +98,9 @@ Backend files will be found in Backend Testing folder and front end in Vue-app f
     |---public
 
             |---index.html
+            |---{see other 6 html files}
+            |---assets
+            |---favicon.ico
 
     |---src
 
@@ -97,17 +108,9 @@ Backend files will be found in Backend Testing folder and front end in Vue-app f
 
       |---components
 
-            |---allBreakdownsView.vue
-
-            |---indexTableView.vue
-
-            |---shareTableView.vue
-            
-            |---shareTabAlt.vue
+            |---extra
             
             |---LatestTransactionsChart.vue
-
-            |---IndexTabAlt.vue
 
             |---TabAlt2.vue
 
@@ -134,6 +137,10 @@ Required to edit the file to local specifications, follow instructions to setup 
 
 This backend only processes get requests, as we don't expect changes to the data
 
-# Improvements
-Looking to setup visualisations and configure a better backend for accessing reduced set of data.
-Possibly exploring stored procedures
+# Bug report and Improvements
+- Investigate the efficiencies of map vs filter vs arrays
+- Configure a better backend for accessing reduced set of data.
+- Possibly exploring stored procedures.
+- Better app Structure, Access dataService directly from components to improve speed of rendering. Consider the use of v-show of v-if and performance
+- Fix bug preventing double multifilters (YQ set and index codes set) on share and index chart data. Currently results in endless loop. Moving multifilter for codes into App.vue rather than in component may help reduce filtering complexity and also enable filter to persist through tab changing.
+- Fix bug in share charts multiselect, seems to be referncing wrong value when constructing
