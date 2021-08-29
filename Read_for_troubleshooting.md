@@ -1,6 +1,6 @@
 Dear Reader
 
-These are 3 installation bugs points with easy fixes that you may run into during installation. The dashboard requires these fixes to work exactly as it did in the demo.
+These are 3 bugs that may occur during the installation. The dashboard requires these fixes to work exactly as it did in the demo.
 
 ## 1 Python scripts
 
